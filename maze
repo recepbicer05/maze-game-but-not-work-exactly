@@ -1,0 +1,457 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <conio.h>
+#include <math.h>
+#include <time.h>
+
+//maze, *movethief*, movepoliceeasy,movepolicehard, manhattan distance, system(clear),
+char *A[33][33];// we made 16*16 maze but included spaces so 33*33
+int x1,x2,y,y2; //[y,x1] for thief, [y2,x2]for police
+enum STATUS {
+   T, //thief conditions
+   P, //police condition
+   win, //about win
+   lost, //about lose
+};
+enum STATUS options;
+
+void maze_screen();//maze
+void ayarlama();//aware of manhattan distance, settings thief and police locations
+void replaced();//create the maze
+void thief(int c);//thief's move
+void easyp();//easy police  mode
+void hardp();//hard police mode
+
+
+int main()
+{
+	int c;//c random value
+   char x;
+   int a,b,mode;
+   printf("Welcome to the Maze game\n");
+   printf("1:Play\n2:How To Play\n3:Exit\n");
+
+   a = getch();
+
+   srand(time(NULL));
+   while (b != '2') {
+      if (a == '1') {
+         system("cls");
+         printf("Choose the game mod\n1:Easy\n2:Hard\n");
+        mode = getch();
+		maze_screen();
+         ayarlama();
+         do {
+            replaced();
+            
+            thief(c);
+            if (options == T) {
+               
+               thief(c);
+            }
+            if (options == P && mode == '1') {
+               easyp();
+            }
+            if (options == P && mode == '2') {
+               hardp();
+            }
+
+         } while (options == T || options == P);
+
+         if (options == win) {
+            printf("You win\nPlay again?\n1:Play\n2:Exit\n");
+            b = getch();
+         }
+
+         if (options == lost) {
+            printf("You lost\nPlay again?\n1:Play\n2:Exit\n");
+            b = getch();
+         }
+      } else if (a == '2') {
+         system("cls");
+         printf("W for up, A for left, S for down, D for right\nTo win you have to reach \'W P\'\nEscape from the police\nPlease play game with full screen\n1:Play\n2:Exit\n");
+         b = getch();
+         if (b == '1')
+            a = '1';
+
+      } else
+         b = '2';
+   }
+
+   if (b == '2') {
+      system("cls");
+      printf("Thanks for Playing !!");
+   }
+   return 0;
+
+}
+	void maze_screen()//maze complier and create
+{	
+	system("cls");
+	
+   for(int i=0;i<=32;i++) 
+   {
+      for (int j=0;j<=32;j++) 
+	  {
+         if (i == 5 && j == 5 || i == 7 && j == 5 || i == 1 && j == 17 ||
+            i == 3 && j == 17 || i == 5 && j == 27 || i == 7 && j == 27 ||
+            i == 11 && j == 13 || i == 11 && j == 15 || i == 11 && j == 17 ||
+            i == 13 && j == 13 || i == 19 && j == 7 || i == 19 && j == 9 ||
+            i == 19 && j == 11 || i == 21 && j == 11 || i == 17 && j == 21 ||
+            i == 19 && j == 21 || i == 21 && j == 21 || i == 23 && j == 21 ||
+            i == 29 && j == 5 || i == 29 && j == 7 || i == 29 && j == 9 ||
+            i == 23 && j == 23 || i == 5 && j == 15 || i == 5 && j == 17 || i == 5 && j == 19 || i == 25 && j == 5 || i == 27 && j == 5) 
+			{
+
+            A[i][j]= " # ";
+
+         } else if(i%2==0) {
+            A[i][j]= "- ";
+
+         } else if(j%2==0) {
+
+            A[i][j]= "|";
+
+         } else if (i ==15&&j==1) {
+            A[i][j] = "W P";
+         } else {
+            A[i][j] = "   ";
+
+         }
+      }
+      printf("\n");
+
+   }
+}
+void ayarlama()//check manhattan distance
+{
+
+   x1 = (rand() % 32);
+   x2 = (rand() % 32);
+   y  = (rand() % 32);
+   y2 = (rand() % 32);
+
+   while (!((fabs(x2 - x1) + fabs(y2 - y)) >= 32 && (fabs(15 - x1) + fabs(1 - y)) >= 32 && (fabs(15 - x2) + fabs(1 - y2))
+             && A[x1][y] != " # " && A[x2][y2] != " # " &&
+             x1 % 2 != 0 && x2 % 2 != 0 && y % 2 != 0 && y2 % 2 != 0)) {
+
+      x1 = (rand() % 32);
+      x2 = (rand() % 32);
+      y = (rand() % 32);
+      y2 = (rand() % 32);
+   }
+   A[x1][y] = " T ";
+   A[x2][y2] = " P ";
+
+}
+void replaced()//create the maze
+{
+	system("cls");	
+	for(int i=0;i<=32;i++)
+	{
+		for(int j=0;j<=32;j++)
+		{
+			printf("%s",A[i][j]);
+		}
+		printf("\n");
+	}
+}
+void thief(int c)//controlling thief
+{
+	char z;
+	z=getch();
+	
+	switch(z)
+	{
+		case 87 : case 119://upward
+		 if (A[x1-2][y] == " # ") 
+		{
+         options= T;
+     	}
+       else if (!(x1 -2> -1)) 
+        {
+		 options= T;
+    	}
+	   else if (A[x1-2][y] == "W P") 
+        {
+		 options = win;
+  		}
+	   else if (A[x1-2][y] == " P ") 
+	    {
+         options=lost;
+		}
+	   else 
+	   	{
+         A[x1-2][y] = " T ";
+         A[x1][y] = "   ";
+         options = P;
+         x1 = x1 - 2;
+        }
+      break;
+		case 83 : case 115://down
+		 if (A[x1+2][y] == " # ") 
+		 {
+         options= T;
+     	 }
+       else if (!(x1+2 < 32)) 
+       	{
+         options= T;
+        }
+	  else if (A[x1+2][y] == "W P") 
+	  	{
+		 options = win;
+    	}
+		else if (A[x1+2][y] == " P ") 
+		{
+         options=lost;
+        }
+	   else
+	   	{ 
+         A[x1+2][y] = " T ";
+         A[x1][y] = "   ";
+         options = P;
+         x1 = x1 + 2 ;
+      	}
+      break;
+		case 68: case 100://right
+		 if (A[x1][y+2] == " # ") 
+		 {
+         options= T;
+	 	 }
+	   else if (!(y+2 < 32)) 
+	   	{
+         options= T;
+     	}
+	   else if (A[x1][y+2] == "W P") 
+        {
+		 options = win;
+		}
+	   else if (A[x1][y+2] == " P ") 
+	    {
+         options=lost;
+    	}
+	   else
+	   	{ 
+         A[x1][y+2] = " T ";
+         A[x1][y] = "   ";
+         options = P;
+         y=y+2;
+    	}
+      break;
+		case 65: case 97://left
+		 if (A[x1][y-2] == " # ") 
+		{
+         options= T;
+        }
+	   else if (!(y-2 > -1)) 
+       	{
+	   	 options= T;
+	    }
+	   else if (A[x1][y-2] == "W P") 
+        {
+		 options = win;
+    	}
+	   else if (A[x1][y-2] == " P ") 
+        {
+		 options=lost;
+    	}
+	   else 
+        {
+		 A[x1][y-2] = " T ";
+         A[x1][y] = "   ";
+         options = P;
+         y=y-2;
+      	}
+      break;
+	default:
+      options = T;
+      break;
+	}
+}
+
+void easyp()//controlling police for easy mode
+{
+	int police;
+	while(options== P)
+	{
+		police = rand()%4;// choose directions 
+		switch (police) {
+
+      case 0:
+         if (y2 + 2 < 32 && A[x2][y2 + 2] != " # " && A[x2][y2 + 2] != "W P") {
+            if (A[x2][y2 + 2] == " T ") {//check for are we touch any walls or thief
+               options = lost;
+            } else {
+               A[x2][y2 + 2] = " P ";//1
+               A[x2][y2] = "   ";//2: right
+               y2 += 2;
+               options = T;
+            }
+         }
+         break;
+	 case 1://same for left
+         if (y2 - 2 > -1 && A[x2][y2 - 2] != " # " && A[x2][y2 - 2] != "W P") {// we use +-2 for checking walls
+            if (A[x2][y2 - 2] == " T ") {
+               options= lost;
+            } else {
+               A[x2][y2 - 2] = " P ";
+               A[x2][y2] = "   ";
+               y2 -= 2;
+               options= T;
+            }
+         }
+         break;
+      case 2://for down
+         if (x2 + 2 < 32 && A[x2 + 2][y2] != " # " && A[x2 + 2][y2] != "W P") {
+            if (A[x2 + 2][y2] == " T ") {
+               options = lost;
+            } else {
+               A[x2 + 2][y2] = " P ";
+               A[x2][y2] = "   ";
+               x2 += 2;
+               options = T;
+            }
+         }
+         break;
+      case 3://for upward
+         if (x2 - 2 > -1 && A[x2 - 2][y2] != " # " && A[x2 - 2][y2] != "W P") {
+            if (A[x2 - 2][y2] == " T ") {
+               options = lost;
+            } else {
+               A[x2 - 2][y2] = " P ";
+               A[x2][y2] = "   ";
+               x2 -= 2;
+               options = T;
+            }
+         }
+         break;
+      default:
+         options = P;
+         break;
+
+      } 
+   } 
+} 
+void hardp()//controlling police hard mode 
+{
+	int x,y,z,d;
+	int a,b,k,l;
+	while(options == P)
+	{
+	for(int i=0;i<=31;i+=2)// we defined arrays for checking thief police statement
+	{
+		for(int j=0;j<=31;j+=2)
+		{
+			if(A[i][j]== "P")
+			{
+				x=i;
+				y=j;
+			}
+			if(A[i][j]== "T")
+			{
+				z=i;
+				d=j;
+			}
+		}
+		
+	}//check thief location. Upward-right&upward-left&down-right&down-left and step closer to thief
+	if(x-2>z && A[x-2][y]!=" # " && A[x-2][y]!= "W P" && x-2>-1 && y-2>d && y-2>-1 && A[x][y-2]!="W P" && A[x][y-2]!=" # ")//upward-right
+	{
+		if (A[x - 2][y] == " T " || A[x][y-2] == " T " ) {
+               options = lost;
+            }
+        else{
+		a=rand()%2;
+		switch(a)
+		{
+			case 0:
+			   A[x][y-2] = " P ";
+               A[x][y] = "   ";
+               y -= 2;
+               options = T;
+            case 1:
+               A[x-2][y] = " P ";
+               A[x][y] = "   ";
+               x -= 2;
+               options = T;
+               default:
+         options = P;
+         break;
+		}
+	}
+	}
+	if(x+2<z && A[x+2][y]!=" # " && A[x+2][y]!= "W P" && x+2<32 && y+2<d && y+2<32 && A[x][y+2]!="W P" && A[x][y+2]!=" # ")//down-left
+	{
+		if (A[x + 2][y] == " T " || A[x][y+2] == " T " ) {
+               options = lost;
+        }
+		else{
+		b=rand()%2;
+		switch(b){
+			case 0:
+			   A[x][y+2] = " P ";
+               A[x][y] = "   ";
+               y += 2;
+               options = T;
+            case 1:
+               A[x+2][y] = " P ";
+               A[x][y] = "   ";
+               x += 2;
+               options = T;
+               default:
+         options = P;
+         break;
+		}
+	}
+	}
+	if(x+2<z && A[x+2][y]!=" # " && A[x+2][y]!= "W P" && x+2<32 && y-2>d && y-2>-1 &&  A[x][y-2]!="W P" &&  A[x][y-2]!=" # ")//down-right
+	{
+		if (A[x + 2][y] == " T " || A[x][y-2] == " T " ) {
+               options = lost;
+            }
+		else{
+		k=rand()%2;
+		switch(k){
+			case 0:
+			   A[x][y-2] = " P ";
+               A[x][y] = "   ";
+               y -= 2;
+               options = T;
+            case 1:
+               A[x+2][y] = " P ";
+               A[x][y] = "   ";
+               x += 2;
+               options = T;
+               default:
+         options = P;
+         break;
+		}
+	}
+	}
+	if(x-2<z && A[x-2][y]!=" # " && A[x-2][y]!= "W P" && x-2>-1 && y+2<d && y+2<32 && A[x][y+2]!="W P" && A[x][y+2]!=" # ")//upward-left
+	{
+		if (A[x - 2][y] == " T " || A[x][y+2] == " T " ) {
+               options = lost;
+            }
+		else{
+		
+		l=rand()%2;
+		switch(l){
+			case 0:
+			   A[x][y+2] = " P ";
+               A[x][y] = "   ";
+               y += 2;
+               options = T;
+            case 1:
+               A[x-2][y] = " P ";
+               A[x][y] = "   ";
+               x -= 2;
+               options = T;
+               default:
+         options = P;
+         break;
+     	}
+		}
+	}
